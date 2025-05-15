@@ -1,6 +1,5 @@
 //Get Command Line Arguments
 const args = process.argv.slice(2);
-
 //Check if No Arguments Provided
 if (args.length === 0) {
   console.log("Please provide numbers as command-line arguments.");
