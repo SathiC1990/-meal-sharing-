@@ -6,12 +6,14 @@ import knex from "./database_client.js";
 import nestedRouter from "./routers/nested.js";
 import mealsRouter from "./routers/meals.js";
 import reservationsRouter from "./routers/reservations.js";
+import reviewsRouter from "./routers/reviews.js";
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
-app.use("/api/meals", mealsRouter);
+app.use("/api/meals*", mealsRouter);
 app.use("/api/reservations", reservationsRouter);
+app.use("/api/reviews", reviewsRouter);
 
 const apiRouter = express.Router();
 
@@ -37,6 +39,9 @@ app.listen(process.env.PORT, () => {
 app.get("/future-meals", async (req, res) => {
   try {
     const meals = await knex("Meal").where("when", ">", knex.fn.now());
+    if (!meals) {
+      return res.status(404).json({ message: "No future meals found" });
+    }
     res.json(meals);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -48,6 +53,9 @@ app.get("/past-meals", async (req, res) => {
   try {
     const now = new Date();
     const meals = await knex("Meal").where("when", "<", now);
+    if (!meals) {
+      return res.status(404).json({ message: "No past meals found" });
+    }
     res.json(meals);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -58,6 +66,9 @@ app.get("/past-meals", async (req, res) => {
 app.get("/all-meals", async (req, res) => {
   try {
     const meals = await knex("Meal").orderBy("id");
+    if (!meals) {
+      return res.status(404).json({ message: "No meals found" });
+    }
     res.json(meals);
   } catch (error) {
     res.status(500).json({ error: error.message });
