@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import styles from "./MealsList.module.css";
+import api from "@/utils/api";
 
 const MealsList = () => {
   const [meals, setMeals] = useState([]);
@@ -8,7 +9,7 @@ const MealsList = () => {
   useEffect(() => {
     async function fetchMeals() {
       try {
-        const response = await fetch("http://localhost:3001/api/meals");
+        const response = await fetch(api("/meals"));
         if (!response.ok) {
           throw new Error("Failed to fetch meals");
         }
