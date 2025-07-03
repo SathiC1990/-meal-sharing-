@@ -1,75 +1,8 @@
-import express from "express";
-import knex from "../database_client.js";
+
 import pkg from "body-parser";
 const { json } = pkg;
 
 const router = express.Router();
-//Returns the meal by id
-router.get("/:id", async (req, res) => {
-  try {
-    const meal = await knex("Meal").where({ id: req.params.id }).first();
-
-    if (!meal) {
-      return res.status(404).json({ error: "Meal not found" });
-    }
-
-    res.json(meal);
-  } catch (error) {
-    console.error("Error fetching meal:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-// Returns all meals with query options
-router.get("/", async (req, res) => {
-  try {
-    const maxPrice = req.query.maxPrice ? parseFloat(req.query.maxPrice) : null;
-    const availableReservations = req.query.availableReservations;
-    const title = req.query.title;
-    const afterDate = req.query.afterDate
-      ? new Date(req.query.afterDate)
-      : null;
-    const beforeDate = req.query.beforeDate
-      ? new Date(req.query.beforeDate)
-      : null;
-
-    const mealLimit = req.query.limit ? parseInt(req.query.limit) : null;
-    const sortKey = req.query.sortKey;
-    let sortDir = req.query.sortDir?.toLowerCase();
-    const allowedSortDirs = ["asc", "desc"];
-    const allowedSortKeys = ["when", "max_reservations", "price"];
-
-    // Validate inputs
-    if (req.query.maxPrice && isNaN(maxPrice)) {
-      return res.status(400).json({ error: "maxPrice must be a number" });
-    }
-
-    if (
-      availableReservations !== undefined &&
-      availableReservations !== "true" &&
-      availableReservations !== "false"
-    ) {
-      return res
-        .status(400)
-        .json({ error: "availableReservations must be 'true' or 'false'" });
-    }
-    const isAvailable = availableReservations === "true";
-
-    if (req.query.afterDate && isNaN(afterDate.getTime())) {
-      return res.status(400).json({ error: "afterDate must be a valid date" });
-    }
-
-    if (req.query.beforeDate && isNaN(beforeDate.getTime())) {
-      return res.status(400).json({ error: "beforeDate must be a valid date" });
-    }
-
-    if (req.query.limit && (isNaN(mealLimit) || mealLimit <= 0)) {
-      return res.status(400).json({ error: "limit must be a positive number" });
-    }
-
-    if (!allowedSortDirs.includes(sortDir)) {
-      sortDir = "asc";
-    }
 
     let query = knex("Meal");
 
@@ -130,6 +63,7 @@ router.post("/", async (req, res) => {
   }
 });
 
+
 //Updates the meal by id
 
 router.put("/:id", async (req, res) => {
@@ -140,16 +74,6 @@ router.put("/:id", async (req, res) => {
   res.json({ message: "Meal updated" });
 });
 
-// Deletes the meal by id
-router.delete("/:id", async (req, res) => {
-  try {
-    const deleted = await knex("Meal").where({ id: req.params.id }).del();
-    if (!deleted) return res.status(404).json({ error: "Meal not found" });
-    res.json({ message: "Meal deleted" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error deleting meal" });
-  }
 });
 
 export default router;
