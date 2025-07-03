@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import styles from "./Meal.module.css";
 export default function Meal({
