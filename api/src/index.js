@@ -12,7 +12,7 @@ const app = express();
 app.use(cors());
 
 app.use(bodyParser.json());
-app.use("/api/meals*", mealsRouter);
+app.use("/api/meals", mealsRouter);
 app.use("/api/reviews", reviewsRouter);
 app.use("/api/reservations", reservationsRouter);
 

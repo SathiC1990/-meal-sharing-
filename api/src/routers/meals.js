@@ -4,6 +4,21 @@ import pkg from "body-parser";
 const { json } = pkg;
 
 const router = express.Router();
+//Returns the meal by id
+router.get("/:id", async (req, res) => {
+  try {
+    const meal = await knex("Meal").where({ id: req.params.id }).first();
+
+    if (!meal) {
+      return res.status(404).json({ error: "Meal not found" });
+    }
+
+    res.json(meal);
+  } catch (error) {
+    console.error("Error fetching meal:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 // Returns all meals with query options
 router.get("/", async (req, res) => {
@@ -105,9 +120,24 @@ router.get("/", async (req, res) => {
   }
 });
 
+//Adds a new meal to the database
+router.post("/", async (req, res) => {
+  try {
+    const [id] = await knex("Meal").insert(req.body);
+    res.status(201).json({ message: "Meal created", id });
+  } catch {
+    res.status(500).json({ error: "Error creating meal" });
+  }
+});
+
+//Updates the meal by id
+
 router.put("/:id", async (req, res) => {
-  // You can add your update logic here later
-  res.status(501).json({ message: "Update meal not implemented yet" });
+  const updated = await knex("Meal")
+    .where({ id: req.params.id })
+    .update(req.body);
+  if (!updated) return res.status(404).json({ error: "Meal not found" });
+  res.json({ message: "Meal updated" });
 });
 
 // Deletes the meal by id
