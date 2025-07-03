@@ -1,9 +1,10 @@
-.link {
-  display: flex;
-  margin: 5vh 0;
-}
-
-.logo,
 .message {
   margin: auto;
+}
+
+.welcomeTitle {
+  text-align: center;
+  color: #2c3e50;
+  font-size: 2rem;
+  margin: 2rem 0;
 }

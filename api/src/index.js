@@ -4,10 +4,16 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import knex from "./database_client.js";
 import nestedRouter from "./routers/nested.js";
+import mealsRouter from "./routers/meals.js";
+import reviewsRouter from "./routers/reviews.js";
+import reservationsRouter from "./routers/reservations.js";
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+app.use("/api/meals", mealsRouter);
+app.use("/api/reviews", reviewsRouter);
+app.use("/api/reservations", reservationsRouter);
 
 const apiRouter = express.Router();
 

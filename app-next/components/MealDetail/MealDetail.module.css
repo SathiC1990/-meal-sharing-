@@ -1,0 +1,44 @@
+/* MealDetail.module.css */
+
+.container {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background-color: #fffaf0;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  font-family: Arial, sans-serif;
+}
+
+.heading {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.detail {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  color: #444;
+}
+
+.detail strong {
+  color: #222;
+}
+
+.error {
+  color: #d32f2f;
+  background-color: #fdecea;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  border: 1px solid #f5c6cb;
+  text-align: center;
+}
+
+.loading {
+  font-size: 1.2rem;
+  text-align: center;
+  color: #666;
+}
