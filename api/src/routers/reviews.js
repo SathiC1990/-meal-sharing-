@@ -32,44 +32,82 @@ router.get("/meal/:meal_id", async (req, res) => {
 
 //Adds a new review to the database
 
-router.post("/", async (req, res) => {
+router.post("/:mealId/reviews", async (req, res) => {
+  const meal_id = Number(req.params.mealId);
+  const { title, description, stars, created_date } = req.body;
+
+  if (
+    typeof title !== "string" ||
+    typeof description !== "string" ||
+    typeof stars !== "number" ||
+    stars < 1 ||
+    stars > 5 ||
+    !created_date ||
+    isNaN(Date.parse(created_date))
+  ) {
+    return res.status(400).json({ error: "Invalid input" });
+  }
+
   try {
-    const [id] = await knex("Review").insert(req.body);
+    const [id] = await knex("Review").insert({
+      title,
+      description,
+      meal_id,
+      stars,
+      created_date,
+    });
     res.status(201).json({ message: "Review created", id });
   } catch (error) {
     console.error("Error creating review:", error);
-    res.status(500).json({ error: "Error creating review" });
+    res.status(500).json({ error: "Server error" });
   }
 });
 
-//Returns a review by id.
-router.get("/:id", async (req, res) => {
-  try {
-    const review = await knex("Review").where({ id: req.params.id }).first();
-
-    if (!review) {
-      return res.status(404).json({ error: "Review not found" });
-    }
-
-    res.json(review);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error retrieving review" });
-  }
-});
 //Updates the review by id.
+
 router.put("/:id", async (req, res) => {
   try {
-    const updateReview = await knex("Review")
+    const { title, description, meal_id, stars, created_date } = req.body;
+
+    // Validate all fields (assuming full update required)
+    if (
+      typeof title !== "string" ||
+      title.trim() === "" ||
+      typeof description !== "string" ||
+      description.trim() === "" ||
+      typeof meal_id !== "number" ||
+      typeof stars !== "number" ||
+      stars < 1 ||
+      stars > 5 ||
+      !created_date ||
+      isNaN(Date.parse(created_date))
+    ) {
+      return res.status(400).json({
+        error:
+          "Invalid input: please provide valid title, description, meal_id, stars (1–5), and created_date.",
+      });
+    }
+
+    // Perform update on the specific review by ID
+    const updatedRows = await knex("Review")
       .where({ id: req.params.id })
-      .update(req.body);
-    if (!updateReview) {
+      .update({
+        title,
+        description,
+        meal_id,
+        stars,
+        created_date,
+      });
+
+    if (updatedRows === 0) {
+      // No review with that id found
       return res.status(404).json({ error: "Review not found" });
     }
-    res.json(updateReview);
+
+    res.status(200).json({ message: "Review updated" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error retrieving review" });
+    console.error("Error updating review:", error);
+    res.status(500).json({ error: "Error updating review" });
   }
 });
 

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import api from "@/utils/api";
 
 export default function ReservationForm({ mealId }) {
   const [formData, setFormData] = useState({
@@ -28,7 +29,7 @@ export default function ReservationForm({ mealId }) {
     };
 
     try {
-      const res = await fetch("http://localhost:3001/api/reservations", {
+      const res = await fetch(api("/reservations"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reservation),

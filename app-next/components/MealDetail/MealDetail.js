@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import ReservationForm from "../ReservationsForm/ReservationsForm";
 import styles from "./MealDetail.module.css";
 import ReviewForm from "../ReviewForm/ReviewForm";
+import api from "@/utils/api";
 
 export default function MealDetail({ mealId }) {
   const [meal, setMeal] = useState(null);
@@ -12,7 +13,8 @@ export default function MealDetail({ mealId }) {
   useEffect(() => {
     async function fetchMeal() {
       try {
-        const res = await fetch(`http://localhost:3001/api/meals/${mealId}`);
+        //const res = await fetch(`http://localhost:3001/api/meals/${mealId}`);
+        const res = await fetch(api(`/meals/${mealId}`));
         if (!res.ok) throw new Error("Meal not found");
         const data = await res.json();
         setMeal(data);
