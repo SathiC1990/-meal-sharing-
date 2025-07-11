@@ -61,7 +61,7 @@ router.get("/", async (req, res) => {
     if (maxPrice !== null) {
       query = query.where("price", "<=", maxPrice);
     }
-
+    /*
     if (availableReservations !== undefined) {
       query = query
         .leftJoin("Reservation", "Meal.id", "Reservation.meal_id")
@@ -75,6 +75,21 @@ router.get("/", async (req, res) => {
         .select("Meal.*");
     } else {
       query = query.select("*");
+    }*/
+    query = query
+      .leftJoin("Reservation", "Meal.id", "Reservation.meal_id")
+      .groupBy("Meal.id")
+      .select(
+        "Meal.*",
+        knex.raw("COUNT(Reservation.id) as total_reservations")
+      );
+
+    if (availableReservations !== undefined) {
+      query.havingRaw(
+        isAvailable
+          ? "Meal.max_reservations > COUNT(Reservation.id)"
+          : "Meal.max_reservations <= COUNT(Reservation.id)"
+      );
     }
 
     if (title) {
@@ -105,9 +120,28 @@ router.get("/", async (req, res) => {
   }
 });
 //Returns the meal by id
-router.get("/:id", async (req, res) => {
+/*router.get("/:id", async (req, res) => {
   try {
     const meal = await knex("Meal").where({ id: req.params.id }).first();
+
+    if (!meal) {
+      return res.status(404).json({ error: "Meal not found" });
+    }
+
+    res.json(meal);
+  } catch (error) {
+    console.error("Error fetching meal:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});*/
+router.get("/:id", async (req, res) => {
+  try {
+    const meal = await knex("Meal")
+      .leftJoin("Reservation", "Meal.id", "Reservation.meal_id")
+      .where("Meal.id", req.params.id)
+      .groupBy("Meal.id")
+      .select("Meal.*", knex.raw("COUNT(Reservation.id) as total_reservations"))
+      .first();
 
     if (!meal) {
       return res.status(404).json({ error: "Meal not found" });

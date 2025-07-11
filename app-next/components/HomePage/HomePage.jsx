@@ -19,12 +19,6 @@ const HomePage = () => {
       <Link href="/meals">
   <button type="button">See all meals</button>
 </Link>
-
-
-
-      {/* Footer */}
-      <footer>© 2025 Meal Sharing</footer>
-       </main>
-  );
+ </main>);    
 };
 export default HomePage;

@@ -9,11 +9,7 @@ export default function ReviewForm({ mealId }) {
     stars: 5,
   });
   const [message, setMessage] = useState("");
-  /*
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };*/
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -34,14 +30,13 @@ export default function ReviewForm({ mealId }) {
     };
 
     try {
-      const res = await fetch(
-        `http://localhost:3001/api/reviews/${mealId}/reviews`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(review),
-        }
-      );
+      /*const res = await fetch(
+        `http://localhost:3001/api/reviews/${mealId}/reviews`,*/
+      const res = await fetch(api(`/reviews/${mealId}/reviews`), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(review),
+      });
 
       if (!res.ok) throw new Error("Failed to submit review");
       setMessage("Review submitted successfully!");

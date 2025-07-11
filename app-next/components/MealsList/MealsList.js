@@ -8,11 +8,22 @@ import Link from "next/link";
 export default function MealsList({ limit }) {
   const [meals, setMeals] = useState([]);
   const [error, setError] = useState(null);
+  const [searchText, setSearchText] = useState("");
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState("title"); // Default sort key
+  const [sortDirection, setSortDirection] = useState("asc"); // Default sort direction
 
   // const response = await fetch(api("/meals"));
   async function fetchMeals() {
     try {
-      const url = limit ? api(`/meals?limit=${limit}`) : api("/meals");
+      const url = limit
+        ? api(`/meals?limit=${limit}`)
+        : api(
+            `/meals${
+              query ? `?title=${query}&` : "?"
+            }sortKey=${sort}&sortDir=${sortDirection}`
+          );
+
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Failed to fetch meals");
@@ -25,8 +36,15 @@ export default function MealsList({ limit }) {
     }
   }
   useEffect(() => {
-    fetchMeals();
-  }, []);
+    fetchMeals(); // Initial fetch
+
+    const intervalId = setInterval(() => {
+      fetchMeals(); // Fetch meals every 5 seconds
+    }, 5000);
+
+    // Cleanup interval on unmount or dependency change
+    return () => clearInterval(intervalId);
+  }, [query, limit, sort, sortDirection]);
 
   // If error occurred
   if (error) {
@@ -72,6 +90,53 @@ export default function MealsList({ limit }) {
   return (
     <div>
       <h2 className={styles.heading}>Meals List</h2>
+      {/* Search box and button */}
+      {!limit && (
+        <>
+          <div className={styles.searchContainer}>
+            <input
+              type="text"
+              placeholder="Search meals by title"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className={styles.searchInput}
+            />
+            <button
+              onClick={() => setQuery(searchText.trim())}
+              className={styles.searchButton} // <-- add this
+            >
+              Search
+            </button>
+          </div>
+          {/* Sort options*/}
+          <div className={styles.sortContainer}>
+            <label>
+              Sort by:
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className={styles.sortSelect}
+              >
+                <option value="title">Title</option>
+                <option value="price">Price</option>
+                <option value="when">Date</option>
+              </select>
+            </label>
+
+            <label>
+              Direction:
+              <select
+                value={sortDirection}
+                onChange={(e) => setSortDirection(e.target.value)}
+                className={styles.sortSelect}
+              >
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </select>
+            </label>
+          </div>
+        </>
+      )}
       <div className={styles.grid}>
         {meals.map((meal) => (
           <Link key={meal.id} href={`/meals/${meal.id}`}>

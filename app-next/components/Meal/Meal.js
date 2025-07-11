@@ -8,9 +8,16 @@ export default function Meal({
   max_reservations,
   total_reservations,
   when,
+  image,
 }) {
   return (
     <div className={styles.card}>
+      <img
+        src={image || "/download.jpeg"}
+        alt={title}
+        className={styles.mealImage}
+        style={{ width: "300px", height: "200px", objectFit: "cover" }}
+      />
       <h3>{title}</h3>
       <p>{description}</p>
       <p>

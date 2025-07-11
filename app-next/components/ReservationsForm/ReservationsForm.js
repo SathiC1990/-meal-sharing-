@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import api from "@/utils/api";
 
-export default function ReservationForm({ mealId }) {
+export default function ReservationForm({ mealId, onReservationSuccess }) {
   const [formData, setFormData] = useState({
     contact_name: "",
     contact_email: "",
@@ -43,6 +43,9 @@ export default function ReservationForm({ mealId }) {
         contact_email: "",
         contact_phonenumber: "",
       });
+      if (onReservationSuccess) {
+        onReservationSuccess();
+      }
     } catch {
       alert("Reservation failed. Please try again.");
     }

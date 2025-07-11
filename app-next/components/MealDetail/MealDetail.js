@@ -10,20 +10,23 @@ export default function MealDetail({ mealId }) {
   const [error, setError] = useState(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
 
-  useEffect(() => {
-    async function fetchMeal() {
-      try {
-        //const res = await fetch(`http://localhost:3001/api/meals/${mealId}`);
-        const res = await fetch(api(`/meals/${mealId}`));
-        if (!res.ok) throw new Error("Meal not found");
-        const data = await res.json();
-        setMeal(data);
-      } catch (err) {
-        setError(err.message);
-      }
+  async function fetchMeal() {
+    try {
+      const res = await fetch(api(`/meals/${mealId}`));
+      if (!res.ok) throw new Error("Meal not found");
+      const data = await res.json();
+      setMeal(data);
+    } catch (err) {
+      setError(err.message);
     }
+  }
+
+  // Call fetchMeal initially and when mealId changes
+  useEffect(() => {
     fetchMeal();
   }, [mealId]);
+
+  // Calculate spots
 
   if (error) return <p>{error}</p>;
   if (!meal) return <p>Loading...</p>;
@@ -31,7 +34,7 @@ export default function MealDetail({ mealId }) {
   const availableSpots = meal.max_reservations - (meal.total_reservations || 0);
 
   return (
-    <div className={styles.detailContainer}>
+    <div className={styles.container}>
       <h2>{meal.title}</h2>
       <p>{meal.description}</p>
       <p>
@@ -45,7 +48,7 @@ export default function MealDetail({ mealId }) {
       </p>
 
       {availableSpots > 0 ? (
-        <ReservationForm mealId={mealId} />
+        <ReservationForm mealId={mealId} onReservationSuccess={fetchMeal} />
       ) : (
         <p style={{ color: "red" }}>No seats available</p>
       )}
