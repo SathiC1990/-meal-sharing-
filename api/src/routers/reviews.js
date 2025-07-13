@@ -108,6 +108,46 @@ router.put("/:id", async (req, res) => {
   } catch (error) {
     console.error("Error updating review:", error);
     res.status(500).json({ error: "Error updating review" });
+});
+
+
+router.post("/", async (req, res) => {
+  try {
+    const [id] = await knex("Review").insert(req.body);
+    res.status(201).json({ message: "Review created", id });
+  } catch {
+    res.status(500).json({ error: "Error creating review" });
+  }
+});
+
+//Returns a review by id.
+router.get("/:id", async (req, res) => {
+  try {
+    const review = await knex("Review").where({ id: req.params.id }).first();
+
+    if (!review) {
+      return res.status(404).json({ error: "Review not found" });
+    }
+
+    res.json(review);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error retrieving review" });
+  }
+});
+//Updates the review by id.
+router.put("/:id", async (req, res) => {
+  try {
+    const updateReview = await knex("Review")
+      .where({ id: req.params.id })
+      .update(req.body);
+    if (!updateReview) {
+      return res.status(404).json({ error: "Review not found" });
+    }
+    res.json(updateReview);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error retrieving review" });
   }
 });
 
