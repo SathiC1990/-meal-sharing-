@@ -67,19 +67,19 @@ router.get("/", async (req, res) => {
       .groupBy("Meal.id")
       .select(
         "Meal.*",
-        knex.raw("COUNT(Reservation.id) as total_reservations")
+        knex.raw('COUNT("Reservation".id) as total_reservations')
       );
 
     if (availableReservations !== undefined) {
       query.havingRaw(
         isAvailable
-          ? "Meal.max_reservations > COUNT(Reservation.id)"
-          : "Meal.max_reservations <= COUNT(Reservation.id)"
+          ? '"Meal".max_reservations > COUNT("Reservation".id)'
+          : '"Meal".max_reservations <= COUNT("Reservation".id)'
       );
     }
 
     if (title) {
-      query = query.where("title", "like", `%${title}%`);
+      query = query.where("title", "ilike", `%${title}%`);
     }
 
     if (afterDate !== null) {
@@ -113,7 +113,10 @@ router.get("/:id", async (req, res) => {
       .leftJoin("Reservation", "Meal.id", "Reservation.meal_id")
       .where("Meal.id", req.params.id)
       .groupBy("Meal.id")
-      .select("Meal.*", knex.raw("COUNT(Reservation.id) as total_reservations"))
+      .select(
+        "Meal.*",
+        knex.raw('COUNT("Reservation".id) as total_reservations')
+      )
       .first();
 
     if (!meal) {
@@ -130,7 +133,7 @@ router.get("/:id", async (req, res) => {
 //Adds a new meal to the database
 router.post("/", async (req, res) => {
   try {
-    const [id] = await knex("Meal").insert(req.body);
+    const [{ id }] = await knex("Meal").insert(req.body).returning("id");
     res.status(201).json({ message: "Meal created", id });
   } catch (error) {
     console.error("Error creating meal:", error);

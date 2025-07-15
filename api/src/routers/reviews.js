@@ -50,13 +50,15 @@ router.post("/:mealId/reviews", async (req, res) => {
   }
 
   try {
-    const [id] = await knex("Review").insert({
-      title,
-      description,
-      meal_id,
-      stars,
-      created_date,
-    });
+    const [{ id }] = await knex("Review")
+      .insert({
+        title,
+        description,
+        meal_id,
+        stars,
+        created_date,
+      })
+      .returning("id");
     res.status(201).json({ message: "Review created", id });
   } catch (error) {
     console.error("Error creating review:", error);
