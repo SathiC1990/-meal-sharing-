@@ -30,7 +30,6 @@ export default function MealsList({ limit }) {
       }
       const data = await response.json();
       setMeals(data);
-      //  setMeals(limit ? data.slice(0, limit) : data);
     } catch (error) {
       setError("Error fetching meals: " + error.message);
     }
@@ -67,25 +66,6 @@ export default function MealsList({ limit }) {
   }
 
   // If meals are available
-  /*return (
-    <div>
-      <h2 className={styles.heading}>Meals List</h2>
-      <div className={styles.grid}>
-        /*
-        {meals.map((meal) => (
-          <Meal
-            key={meal.id}
-            title={meal.title}
-            description={meal.description}
-            price={meal.price}
-            max_reservations={meal.max_reservations}
-            total_reservations={meal.total_reservations}
-            when={meal.when}
-          />
-        ))}
-      </div>
-    </div>
-  );*/
 
   return (
     <div>
@@ -103,7 +83,7 @@ export default function MealsList({ limit }) {
             />
             <button
               onClick={() => setQuery(searchText.trim())}
-              className={styles.searchButton} // <-- add this
+              className={styles.searchButton}
             >
               Search
             </button>

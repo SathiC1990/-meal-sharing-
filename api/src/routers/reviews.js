@@ -1,18 +1,20 @@
-import express, { Router } from "express";
+import express from "express";
 import knex from "../database_client.js";
 
 const router = express.Router();
-//Returns all reviews.
+
+// GET all reviews
 router.get("/", async (req, res) => {
   try {
     const reviews = await knex("Review").select("*");
     res.json(reviews);
-  } catch {
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Error retrieving reviews" });
   }
 });
 
-//Returns all reviews for a specific meal.
+// GET reviews for a specific meal
 router.get("/meal/:meal_id", async (req, res) => {
   try {
     const mealReview = await knex("Review")
@@ -30,8 +32,7 @@ router.get("/meal/:meal_id", async (req, res) => {
   }
 });
 
-//Adds a new review to the database
-
+// POST a review for a meal
 router.post("/:mealId/reviews", async (req, res) => {
   const meal_id = Number(req.params.mealId);
   const { title, description, stars, created_date } = req.body;
@@ -63,13 +64,27 @@ router.post("/:mealId/reviews", async (req, res) => {
   }
 });
 
-//Updates the review by id.
+// GET review by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const review = await knex("Review").where({ id: req.params.id }).first();
 
+    if (!review) {
+      return res.status(404).json({ error: "Review not found" });
+    }
+
+    res.json(review);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error retrieving review" });
+  }
+});
+
+// PUT (update) review by ID
 router.put("/:id", async (req, res) => {
   try {
     const { title, description, meal_id, stars, created_date } = req.body;
 
-    // Validate all fields (assuming full update required)
     if (
       typeof title !== "string" ||
       title.trim() === "" ||
@@ -88,7 +103,6 @@ router.put("/:id", async (req, res) => {
       });
     }
 
-    // Perform update on the specific review by ID
     const updatedRows = await knex("Review")
       .where({ id: req.params.id })
       .update({
@@ -100,7 +114,6 @@ router.put("/:id", async (req, res) => {
       });
 
     if (updatedRows === 0) {
-      // No review with that id found
       return res.status(404).json({ error: "Review not found" });
     }
 
@@ -108,62 +121,25 @@ router.put("/:id", async (req, res) => {
   } catch (error) {
     console.error("Error updating review:", error);
     res.status(500).json({ error: "Error updating review" });
-});
-
-
-router.post("/", async (req, res) => {
-  try {
-    const [id] = await knex("Review").insert(req.body);
-    res.status(201).json({ message: "Review created", id });
-  } catch {
-    res.status(500).json({ error: "Error creating review" });
   }
 });
 
-//Returns a review by id.
-router.get("/:id", async (req, res) => {
-  try {
-    const review = await knex("Review").where({ id: req.params.id }).first();
-
-    if (!review) {
-      return res.status(404).json({ error: "Review not found" });
-    }
-
-    res.json(review);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error retrieving review" });
-  }
-});
-//Updates the review by id.
-router.put("/:id", async (req, res) => {
-  try {
-    const updateReview = await knex("Review")
-      .where({ id: req.params.id })
-      .update(req.body);
-    if (!updateReview) {
-      return res.status(404).json({ error: "Review not found" });
-    }
-    res.json(updateReview);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error retrieving review" });
-  }
-});
-
-//Deletes the review by id
+// DELETE review by ID
 router.delete("/:id", async (req, res) => {
   try {
     const deleteReview = await knex("Review")
       .where({ id: req.params.id })
-      .delete(req.body);
+      .delete(); // no req.body here
+
     if (!deleteReview) {
       return res.status(404).json({ error: "Review not found" });
     }
+
     res.json({ message: "Review deleted", deleteReview });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Error retrieving review" });
+    res.status(500).json({ error: "Error deleting review" });
   }
 });
+
 export default router;
