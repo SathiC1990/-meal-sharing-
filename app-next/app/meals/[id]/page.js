@@ -1,7 +1,8 @@
 import MealDetail from "@/components/MealDetail/MealDetail";
+import api from "@/utils/api";
 
 export async function generateStaticParams() {
-  const res = await fetch("http://localhost:3001/api/meals");
+  const res = await fetch(api(`/meals`));
   const meals = await res.json();
 
   return meals.map((meal) => ({
