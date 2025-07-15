@@ -14,9 +14,10 @@ router.get("/", async (req, res) => {
 //Adds a new reservation to the database
 router.post("/", async (req, res) => {
   try {
-    const [id] = await knex("Reservation").insert(req.body);
+    const [{ id }] = await knex("Reservation").insert(req.body).returning("id");
     res.status(201).json({ message: "Reservation created", id });
-  } catch {
+  } catch (error) {
+    console.error("Error creating reservation:", error);
     res.status(500).json({ error: "Error creating reservation" });
   }
 });

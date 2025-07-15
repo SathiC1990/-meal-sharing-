@@ -4,6 +4,21 @@ import pkg from "body-parser";
 const { json } = pkg;
 
 const router = express.Router();
+//Returns the meal by id
+router.get("/:id", async (req, res) => {
+  try {
+    const meal = await knex("Meal").where({ id: req.params.id }).first();
+
+    if (!meal) {
+      return res.status(404).json({ error: "Meal not found" });
+    }
+
+    res.json(meal);
+  } catch (error) {
+    console.error("Error fetching meal:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 // Returns all meals with query options
 router.get("/", async (req, res) => {
@@ -22,7 +37,7 @@ router.get("/", async (req, res) => {
     const sortKey = req.query.sortKey;
     let sortDir = req.query.sortDir?.toLowerCase();
     const allowedSortDirs = ["asc", "desc"];
-    const allowedSortKeys = ["when", "max_reservations", "price", "title"];
+    const allowedSortKeys = ["when", "max_reservations", "price"];
 
     // Validate inputs
     if (req.query.maxPrice && isNaN(maxPrice)) {
@@ -62,24 +77,23 @@ router.get("/", async (req, res) => {
       query = query.where("price", "<=", maxPrice);
     }
 
-    query = query
-      .leftJoin("Reservation", "Meal.id", "Reservation.meal_id")
-      .groupBy("Meal.id")
-      .select(
-        "Meal.*",
-        knex.raw('COUNT("Reservation".id) as total_reservations')
-      );
-
     if (availableReservations !== undefined) {
-      query.havingRaw(
-        isAvailable
-          ? '"Meal".max_reservations > COUNT("Reservation".id)'
-          : '"Meal".max_reservations <= COUNT("Reservation".id)'
-      );
+      query = query
+        .leftJoin("Reservation", "Meal.id", "Reservation.meal_id")
+        .groupBy("Meal.id", "Meal.price", "Meal.when", "Meal.max_reservations")
+        .count("Reservation.id as total_reservations")
+        .havingRaw(
+          isAvailable
+            ? "Meal.max_reservations > COUNT(Reservation.id)"
+            : "Meal.max_reservations <= COUNT(Reservation.id)"
+        )
+        .select("Meal.*");
+    } else {
+      query = query.select("*");
     }
 
     if (title) {
-      query = query.where("title", "ilike", `%${title}%`);
+      query = query.where("title", "like", `%${title}%`);
     }
 
     if (afterDate !== null) {
@@ -105,38 +119,13 @@ router.get("/", async (req, res) => {
     res.status(500).json({ error: "Error retrieving meals" });
   }
 });
-//Returns the meal by id
-
-router.get("/:id", async (req, res) => {
-  try {
-    const meal = await knex("Meal")
-      .leftJoin("Reservation", "Meal.id", "Reservation.meal_id")
-      .where("Meal.id", req.params.id)
-      .groupBy("Meal.id")
-      .select(
-        "Meal.*",
-        knex.raw('COUNT("Reservation".id) as total_reservations')
-      )
-      .first();
-
-    if (!meal) {
-      return res.status(404).json({ error: "Meal not found" });
-    }
-
-    res.json(meal);
-  } catch (error) {
-    console.error("Error fetching meal:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
 
 //Adds a new meal to the database
 router.post("/", async (req, res) => {
   try {
-    const [{ id }] = await knex("Meal").insert(req.body).returning("id");
+    const [id] = await knex("Meal").insert(req.body);
     res.status(201).json({ message: "Meal created", id });
-  } catch (error) {
-    console.error("Error creating meal:", error);
+  } catch {
     res.status(500).json({ error: "Error creating meal" });
   }
 });
@@ -144,16 +133,11 @@ router.post("/", async (req, res) => {
 //Updates the meal by id
 
 router.put("/:id", async (req, res) => {
-  try {
-    const updated = await knex("Meal")
-      .where({ id: req.params.id })
-      .update(req.body);
-    if (!updated) return res.status(404).json({ error: "Meal not found" });
-    res.json({ message: "Meal updated" });
-  } catch (error) {
-    console.error("Error updating meal:", error);
-    res.status(500).json({ error: "Error updating meal" });
-  }
+  const updated = await knex("Meal")
+    .where({ id: req.params.id })
+    .update(req.body);
+  if (!updated) return res.status(404).json({ error: "Meal not found" });
+  res.json({ message: "Meal updated" });
 });
 
 // Deletes the meal by id

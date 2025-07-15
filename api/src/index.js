@@ -11,7 +11,7 @@ import reviewsRouter from "./routers/reviews.js";
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
-app.use("/api/meals*", mealsRouter);
+app.use("/api/meals", mealsRouter);
 app.use("/api/reservations", reservationsRouter);
 app.use("/api/reviews", reviewsRouter);
 
