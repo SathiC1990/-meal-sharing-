@@ -13,7 +13,7 @@ const HomePage = () => {
       <p>Handpicked meals just for you 🍽️</p>
 
       {/* Show only first 3 meals */}
-      <MealsList limit={3} />
+      <MealsList limit={4} />
 
       {/* Link/button to all meals page */}
       <Link href="/meals">
