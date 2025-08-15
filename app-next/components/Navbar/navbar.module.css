@@ -1,0 +1,56 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1e2a4f;
+  padding: 1rem 2rem;
+  color: white;
+}
+
+.logo a {
+  font-size: 1.5rem;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.toggleButton {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  color: white;
+  display: none;
+  cursor: pointer;
+}
+
+.navLinks {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+}
+
+.navLinks li a {
+  color: white;
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .toggleButton {
+    display: block;
+  }
+
+  .navLinks {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 65px;
+    right: 20px;
+
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  .navLinks.active {
+    display: flex;
+  }
+}
