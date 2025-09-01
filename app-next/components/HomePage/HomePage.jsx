@@ -1,8 +1,24 @@
 import HYFLogo from "@/assets/hyf.svg";
 import Image from "next/image";
 import "./HomePage.css";
+import MealsList from "@/components/MealList/MealList";
+
+const HomePage = () => {
+  return (
+    <main>
+      <h1 className="welcomeTitle">Welcome to Meal Sharing</h1>
+
+      <MealsList /> 
+    </main>
+  );
+};
+
+
+
+
 
 // Feel free to replace the content of this component with your own
+/*
 function HomePage() {
   return (
     <>
@@ -13,7 +29,9 @@ function HomePage() {
         <span className="message">Go to the nested page</span>
       </a>
     </>
-  );
-}
+  )};*/
+
+
+
 
 export default HomePage;
